@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Learning Assistant | Login & Signup</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            width: 350px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .container h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        input {
+            padding: 0.75rem;
+            width: 80%;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 0.75rem 2rem;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 85%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3c36c2;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .toggle-link {
+            color: #2575fc;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-bottom: 1rem;
+            min-height: 20px;
+        }
+
+        .success-message {
+            color: #2ecc71;
+            margin-bottom: 1rem;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="auth-container">
+        <!-- Login Form -->
+        <div id="login-form">
+            <h1>👩‍🏫 Welcome to EduBot!</h1>
+            <div id="login-error" class="error-message"></div>
+            <div id="login-success" class="success-message"></div>
+            <input type="text" id="login-username" placeholder="Enter your username" required />
+            <input type="password" id="login-password" placeholder="Enter your password" required />
+            <button id="login-button" onclick="login()">Login</button>
+            <div class="footer">
+                <p>Don't have an account? <a class="toggle-link" onclick="toggleForm('signup')">Sign up</a></p>
+            </div>
+        </div>
+
+        <!-- Signup Form (Initially Hidden) -->
+        <div id="signup-form" style="display: none;">
+            <h1>🚀 Create an Account</h1>
+            <div id="signup-error" class="error-message"></div>
+            <div id="signup-success" class="success-message"></div>
+            <input type="text" id="signup-username" placeholder="Choose a username" required />
+            <input type="password" id="signup-password" placeholder="Create a password (min 6 chars)" required />
+            <button id="signup-button" onclick="signup()">Sign Up</button>
+            <div class="footer">
+                <p>Already have an account? <a class="toggle-link" onclick="toggleForm('login')">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API base URL
+        const API_BASE_URL = 'http://localhost:8000/api';
+        
+        // Toggle between login and signup forms
+        function toggleForm(formType) {
+            // Clear messages when switching forms
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('login-success').textContent = '';
+            document.getElementById('signup-error').textContent = '';
+            document.getElementById('signup-success').textContent = '';
+            
+            document.getElementById('login-form').style.display = (formType === 'login') ? "block" : "none";
+            document.getElementById('signup-form').style.display = (formType === 'signup') ? "block" : "none";
+        }
+
+        // Handle login
+        async function login() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const errorElement = document.getElementById('login-error');
+            const successElement = document.getElementById('login-success');
+            const loginButton = document.getElementById('login-button');
+            
+            errorElement.textContent = '';
+            successElement.textContent = '';
+            
+            if (username === "" || password === "") {
+                errorElement.textContent = "Please fill in both username and password!";
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Logging in...";
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Login failed');
+                }
+
+                // Store user info in localStorage
+                localStorage.setItem('user', JSON.stringify({
+                    id: data.user_id,
+                    username: data.username
+                }));
+                
+                successElement.textContent = "Login successful! Redirecting...";
+                
+                // Redirect to chatbot page after successful login
+                setTimeout(() => {
+                    window.location.href = "chatbot.html";
+                }, 1000);
+                
+            } catch (error) {
+                errorElement.textContent = error.message;
+                loginButton.disabled = false;
+                loginButton.textContent = "Login";
+            }
+        }
+
+        // Handle signup
+        async function signup() {
+            const username = document.getElementById('signup-username').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const errorElement = document.getElementById('signup-error');
+            const successElement = document.getElementById('signup-success');
+            const signupButton = document.getElementById('signup-button');
+            
+            errorElement.textContent = '';
+            successElement.textContent = '';
+            
+            if (username === "") {
+                errorElement.textContent = "Please choose a username!";
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorElement.textContent = "Password must be at least 6 characters!";
+                return;
+            }
+
+            signupButton.disabled = true;
+            signupButton.textContent = "Creating account...";
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Signup failed');
+                }
+
+                successElement.textContent = "Account created successfully! You can now login.";
+                
+                // Clear form
+                document.getElementById('signup-username').value = '';
+                document.getElementById('signup-password').value = '';
+                
+                // Switch to login form
+                setTimeout(() => {
+                    toggleForm('login');
+                    // Pre-fill the login form
+                    document.getElementById('login-username').value = username;
+                    document.getElementById('login-password').focus();
+                }, 1500);
+                
+            } catch (error) {
+                errorElement.textContent = error.message;
+            } finally {
+                signupButton.disabled = false;
+                signupButton.textContent = "Sign Up";
+            }
+        }
+
+        // Add event listeners for Enter key
+        document.getElementById('login-username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        document.getElementById('login-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        document.getElementById('signup-username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signup();
+            }
+        });
+        
+        document.getElementById('signup-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signup();
+            }
+        });
+    </script>
+</body>
+</html>

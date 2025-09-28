@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Learning Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="chatbot.css">
+    <script>
+        // Redirect to login if not logged in
+        if (!localStorage.getItem('username')) {
+            window.location.href = "index.html";
+        }
+    </script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="history-section">
+            <div class="history-label">💡 Did you know?</div>
+        
+            <div class="carousel-container">
+            <div id="carousel">
+                <div class="carousel-item">Loading historical facts...</div>
+            </div>
+            <button id="refreshBtn">🔁</button>
+            </div>
+        </div>
+
+        <div class="chat-container">        
+            <div class="chat-header">
+                <h1>🤖 AI Learning Assistant</h1>
+            </div>
+            <div id="chat-box" class="chat-box"> </div>
+            <div class="input-container">
+                <select id="subject-select" class="subject-select">
+                    <option value="general">🌍 General</option>
+                    <option value="math">📊 Math</option>
+                    <option value="science">🔬 Science</option>
+                </select>
+                <input type="text" id="user-input" placeholder="Type a message... ✍️">
+                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+    
+        </div>
+    </div>    
+    <script src="main.js"></script>
+</body>
+</html>
